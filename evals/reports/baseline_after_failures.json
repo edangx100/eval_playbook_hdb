@@ -1,0 +1,307 @@
+[
+  {
+    "test_id": "easy_001",
+    "category": "easy",
+    "query": "Find 4-room flat in Ang Mo Kio, around 93 sqm, mid floor, last 9 months",
+    "failed_checks": [
+      "retrieval_quality"
+    ],
+    "observed": {
+      "count": 31,
+      "retrieval_mode": "structured",
+      "extracted_town": "ANG MO KIO",
+      "extracted_flat_type": "4 ROOM",
+      "final_action": "accept",
+      "final_adjustment": null,
+      "planner_actions": [
+        "initial",
+        "relax",
+        "accept"
+      ]
+    },
+    "expected": {
+      "expected_target": {
+        "town": "ANG MO KIO",
+        "flat_type": "4 ROOM",
+        "floor_area_target": 93.0,
+        "storey_preference": "mid",
+        "months_back": 9
+      },
+      "expected_count_range": {
+        "min": 30,
+        "max": 200
+      },
+      "expected_retrieval_mode": null
+    },
+    "likely_cause": "The planner relaxed the 'months_back' filter from 9 to 12 to boost count from 15 to 31, violating the user's specific time constraint.",
+    "recommended_fix": "Update the planner logic to treat time-window constraints as hard limits or require user confirmation before expanding the date range."
+  },
+  {
+    "test_id": "easy_002",
+    "category": "easy",
+    "query": "Looking for 4-room flat in Bishan, around 98 sqm, last 12 months",
+    "failed_checks": [
+      "retrieval_quality"
+    ],
+    "observed": {
+      "count": 41,
+      "retrieval_mode": "structured",
+      "extracted_town": "BISHAN",
+      "extracted_flat_type": "4 ROOM",
+      "final_action": "accept",
+      "final_adjustment": null,
+      "planner_actions": [
+        "initial",
+        "relax",
+        "accept"
+      ]
+    },
+    "expected": {
+      "expected_target": {
+        "town": "BISHAN",
+        "flat_type": "4 ROOM",
+        "floor_area_target": 98.0,
+        "months_back": 12
+      },
+      "expected_count_range": {
+        "min": 30,
+        "max": 150
+      },
+      "expected_retrieval_mode": null
+    },
+    "likely_cause": "Agent violated the explicit 'last 12 months' query constraint by relaxing the time window to 18 months during the retrieval adjustment phase.",
+    "recommended_fix": "Update the planner's relaxation logic to treat user-specified time windows as hard constraints that cannot be automatically widened."
+  },
+  {
+    "test_id": "easy_004",
+    "category": "easy",
+    "query": "5-room flat in Tampines, around 120 sqm, high floor, last 6 months",
+    "failed_checks": [
+      "retrieval_quality",
+      "llm_judge"
+    ],
+    "observed": {
+      "count": 39,
+      "retrieval_mode": "structured",
+      "extracted_town": "TAMPINES",
+      "extracted_flat_type": "5 ROOM",
+      "final_action": "accept",
+      "final_adjustment": null,
+      "planner_actions": [
+        "initial",
+        "relax",
+        "relax",
+        "relax",
+        "tighten",
+        "accept"
+      ]
+    },
+    "expected": {
+      "expected_target": {
+        "town": "TAMPINES",
+        "flat_type": "5 ROOM",
+        "floor_area_target": 120.0,
+        "storey_preference": "high",
+        "months_back": 6
+      },
+      "expected_count_range": {
+        "min": 30,
+        "max": 150
+      },
+      "expected_retrieval_mode": null
+    },
+    "likely_cause": "Agent dropped `storey_preference` during relaxation, accepting low-floor results (e.g., '07 TO 09') that violate the user's 'high floor' requirement.",
+    "recommended_fix": "Update planner logic to treat storey preference as a hard constraint or use reranking to filter out low-floor units before acceptance."
+  },
+  {
+    "test_id": "easy_006",
+    "category": "easy",
+    "query": "5-room flat in Bishan, last 18 months, preferably mid floor",
+    "failed_checks": [
+      "llm_judge"
+    ],
+    "observed": {
+      "count": 111,
+      "retrieval_mode": "structured",
+      "extracted_town": "BISHAN",
+      "extracted_flat_type": "5 ROOM",
+      "final_action": "accept",
+      "final_adjustment": null,
+      "planner_actions": [
+        "initial",
+        "relax",
+        "accept"
+      ]
+    },
+    "expected": {
+      "expected_target": {
+        "town": "BISHAN",
+        "flat_type": "5 ROOM",
+        "storey_preference": "mid",
+        "months_back": 18
+      },
+      "expected_count_range": {
+        "min": 30,
+        "max": 200
+      },
+      "expected_retrieval_mode": null
+    },
+    "likely_cause": "The agent's output is inconsistent, reporting 111 results in the trace but 30 in `results_total`, and the relaxation returned low-floor units violating the 'mid floor' preference.",
+    "recommended_fix": "Synchronize `results_total` with the trace count and update the relaxation logic to prioritize preferred storeys rather than dropping the constraint entirely."
+  },
+  {
+    "test_id": "easy_007",
+    "category": "easy",
+    "query": "Executive flat in Pasir Ris, last 12 months",
+    "failed_checks": [
+      "target_extraction",
+      "target_extraction_recall",
+      "planner_decision",
+      "planner_final_action",
+      "llm_judge"
+    ],
+    "observed": {
+      "count": 0,
+      "retrieval_mode": "structured",
+      "extracted_town": "PASIR RIS",
+      "extracted_flat_type": null,
+      "final_action": "clarify",
+      "final_adjustment": null,
+      "planner_actions": [
+        "clarify"
+      ]
+    },
+    "expected": {
+      "expected_target": {
+        "town": "PASIR RIS",
+        "flat_type": "EXECUTIVE",
+        "months_back": 12
+      },
+      "expected_count_range": {
+        "min": 30,
+        "max": 200
+      },
+      "expected_retrieval_mode": null
+    },
+    "likely_cause": "Extraction failed to map 'Executive flat' to `flat_type`, resulting in a null value that triggered a 'clarify' action instead of a search.",
+    "recommended_fix": "Update the target extraction prompt to correctly identify 'Executive' as a `flat_type` to ensure the planner executes the search query."
+  },
+  {
+    "test_id": "easy_008",
+    "category": "easy",
+    "query": "3-room flat in Sengkang, last 12 months, low floor",
+    "failed_checks": [
+      "llm_judge"
+    ],
+    "observed": {
+      "count": 168,
+      "retrieval_mode": "structured",
+      "extracted_town": "SENGKANG",
+      "extracted_flat_type": "3 ROOM",
+      "final_action": "accept",
+      "final_adjustment": null,
+      "planner_actions": [
+        "initial",
+        "relax",
+        "relax",
+        "accept"
+      ]
+    },
+    "expected": {
+      "expected_target": {
+        "town": "SENGKANG",
+        "flat_type": "3 ROOM",
+        "storey_preference": "low",
+        "months_back": 12
+      },
+      "expected_count_range": {
+        "min": 30,
+        "max": 200
+      },
+      "expected_retrieval_mode": null
+    },
+    "likely_cause": "The planner dropped the user-specified 'low floor' constraint during relaxation, returning high-floor units (e.g., '16 TO 18') that violate the query intent.",
+    "recommended_fix": "Modify the planner relaxation logic to treat 'storey_preference' as a hard constraint or penalize its removal more heavily than temporal relaxation."
+  },
+  {
+    "test_id": "multiturn_003",
+    "category": "multi_turn",
+    "query": "5-room flat in Tampines, 120 sqm, last 12 months | Narrow it to last 6 months only",
+    "failed_checks": [
+      "retrieval_quality"
+    ],
+    "observed": {
+      "count": 39,
+      "retrieval_mode": "structured",
+      "extracted_town": "TAMPINES",
+      "extracted_flat_type": "5 ROOM",
+      "final_action": "accept",
+      "final_adjustment": null,
+      "planner_actions": [
+        "initial",
+        "relax",
+        "accept"
+      ]
+    },
+    "expected": {
+      "expected_target": null,
+      "expected_target_delta": {
+        "updated": {
+          "months_back": 6
+        },
+        "preserved": [
+          "town",
+          "flat_type",
+          "floor_area_target"
+        ]
+      },
+      "expected_count_range": {
+        "min": 30,
+        "max": 200
+      },
+      "expected_retrieval_mode": null
+    },
+    "likely_cause": "Retrieval missed records from Aug-Nov 2025 for the 'last 6 months' query, causing a low initial count (21) that triggered a relaxation violating the floor area tolerance.",
+    "recommended_fix": "Fix the date filtering logic to correctly include all months specified by 'months_back' (e.g., Aug-Nov 2025), ensuring sufficient initial count without requiring relaxation."
+  },
+  {
+    "test_id": "multiturn_005",
+    "category": "multi_turn",
+    "query": "Executive flats in Hougang, last 18 months | Change to mid floor only",
+    "failed_checks": [
+      "target_extraction",
+      "target_extraction_recall"
+    ],
+    "observed": {
+      "count": 0,
+      "retrieval_mode": "structured",
+      "extracted_town": "HOUGANG",
+      "extracted_flat_type": null,
+      "final_action": "clarify",
+      "final_adjustment": null,
+      "planner_actions": [
+        "clarify"
+      ]
+    },
+    "expected": {
+      "expected_target": null,
+      "expected_target_delta": {
+        "updated": {
+          "storey_preference": "mid"
+        },
+        "preserved": [
+          "town",
+          "flat_type",
+          "months_back"
+        ]
+      },
+      "expected_count_range": {
+        "min": 30,
+        "max": 200
+      },
+      "expected_retrieval_mode": null
+    },
+    "likely_cause": "Agent failed to preserve `flat_type` from Turn 1 and incorrectly reset `months_back` to 12, violating state preservation rules.",
+    "recommended_fix": "Update the agent's state management logic to correctly carry forward preserved fields (`flat_type`, `months_back`) across turns."
+  }
+]

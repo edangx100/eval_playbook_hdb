@@ -1,0 +1,15 @@
+pandas
+sqlalchemy
+psycopg2-binary
+pydantic-settings
+pydantic-ai-slim[openrouter]
+gradio
+httpx
+tqdm
+matplotlib
+numpy
+
+braintrust[otel]
+pytest
+autoevals
+openai

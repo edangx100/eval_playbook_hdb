@@ -1,0 +1,17 @@
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: hdb_search_agents/docker/Dockerfile
+    container_name: hdb_postgres
+    environment:
+      POSTGRES_USER: hdb
+      POSTGRES_PASSWORD: hdb
+      POSTGRES_DB: hdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - hdb_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  hdb_postgres_data:

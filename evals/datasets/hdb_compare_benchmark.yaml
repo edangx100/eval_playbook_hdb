@@ -1,0 +1,784 @@
+# HDB Compare Agents — Benchmark Dataset
+# 38 test cases across 8 categories
+# Data range in DB: 2024-05-01 to 2026-01-01 (43,908 rows with embeddings)
+# Counts verified against live DB on 2026-05-26
+# expected_count_range reflects the FINAL count after the planner loop exits
+
+# ============================================================
+# EASY / HAPPY-PATH CASES (8)
+# Well-specified queries: town + flat_type + area + time window.
+# Agent should accept in ≤ 2 planner steps with count in 30–200.
+# Verified initial counts: 
+# AMK 4-room 9mo ±5sqm ≈171, 
+# Bishan 4-room 12mo ≈54,
+# Serangoon 4-room 12mo ≈167, 
+# Tampines 5-room 6mo ±5sqm ≈72,
+# Marine Parade 3-room 18mo ≈129, 
+# Bishan 5-room 18mo ≈142,
+# Pasir Ris EXEC 12mo ≈134, 
+# Sengkang 3-room 12mo ≈135.
+# ============================================================
+
+- id: easy_001
+  category: easy
+  query: "Find 4-room flat in Ang Mo Kio, around 93 sqm, mid floor, last 9 months"
+  expected_target:
+    town: "ANG MO KIO"
+    flat_type: "4 ROOM"
+    floor_area_target: 93.0
+    storey_preference: "mid"
+    months_back: 9
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+    - reranking_quality
+    - llm_judge
+
+- id: easy_002
+  category: easy
+  query: "Looking for 4-room flat in Bishan, around 98 sqm, last 12 months"
+  expected_target:
+    town: "BISHAN"
+    flat_type: "4 ROOM"
+    floor_area_target: 98.0
+    months_back: 12
+  expected_count_range:
+    min: 30
+    max: 150
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+    - reranking_quality
+    - llm_judge
+
+- id: easy_003
+  category: easy
+  query: "4-room resale flat in Serangoon, last 12 months"
+  expected_target:
+    town: "SERANGOON"
+    flat_type: "4 ROOM"
+    months_back: 12
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+    - llm_judge
+
+- id: easy_004
+  category: easy
+  query: "5-room flat in Tampines, around 120 sqm, high floor, last 6 months"
+  expected_target:
+    town: "TAMPINES"
+    flat_type: "5 ROOM"
+    floor_area_target: 120.0
+    storey_preference: "high"
+    months_back: 6
+  expected_count_range:
+    min: 30
+    max: 150
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+    - reranking_quality
+    - llm_judge
+
+- id: easy_005
+  category: easy
+  query: "3-room HDB flat in Marine Parade, last 18 months"
+  expected_target:
+    town: "MARINE PARADE"
+    flat_type: "3 ROOM"
+    months_back: 18
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+    - llm_judge
+
+- id: easy_006
+  category: easy
+  query: "5-room flat in Bishan, last 18 months, preferably mid floor"
+  expected_target:
+    town: "BISHAN"
+    flat_type: "5 ROOM"
+    storey_preference: "mid"
+    months_back: 18
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+    - llm_judge
+
+- id: easy_007
+  category: easy
+  query: "Executive flat in Pasir Ris, last 12 months"
+  expected_target:
+    town: "PASIR RIS"
+    flat_type: "EXECUTIVE"
+    months_back: 12
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+    - llm_judge
+
+- id: easy_008
+  category: easy
+  query: "3-room flat in Sengkang, last 12 months, low floor"
+  expected_target:
+    town: "SENGKANG"
+    flat_type: "3 ROOM"
+    storey_preference: "low"
+    months_back: 12
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+    - reranking_quality
+    - llm_judge
+
+# ============================================================
+# SPARSE / UNDER-RESULTS CASES (5)
+# Tight constraints that push the initial count below 30.
+# Agent must relax at least once.
+# Verified initial counts below 30; after relaxing, expect 30–200.
+# sparse_001 uses short months_back (3 months) to force under-count.
+# sparse_002 uses rare area (Bukit Timah 4-room: only 32 total rows in 24mo).
+# sparse_003 uses short time window on sparse area (Central Area 4-room: ~26 in 6mo).
+# sparse_004 uses both short months_back and specific area target.
+# sparse_005 uses short months_back + storey constraint on small pool.
+# ============================================================
+
+- id: sparse_001
+  category: sparse
+  query: "4-room flat in Bishan, exactly 97 sqm, last 3 months"
+  expected_target:
+    town: "BISHAN"
+    flat_type: "4 ROOM"
+    floor_area_target: 97.0
+    months_back: 3
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+
+- id: sparse_002
+  category: sparse
+  query: "4-room flat in Bukit Timah, last 12 months"
+  expected_target:
+    town: "BUKIT TIMAH"
+    flat_type: "4 ROOM"
+    months_back: 12
+  expected_count_range:
+    min: 20
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+
+- id: sparse_003
+  category: sparse
+  query: "4-room flat in Central Area, last 6 months"
+  expected_target:
+    town: "CENTRAL AREA"
+    flat_type: "4 ROOM"
+    months_back: 6
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+
+- id: sparse_004
+  category: sparse
+  query: "4-room flat in Bishan, around 97 sqm, last 6 months"
+  expected_target:
+    town: "BISHAN"
+    flat_type: "4 ROOM"
+    floor_area_target: 97.0
+    months_back: 6
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+
+- id: sparse_005
+  category: sparse
+  query: "3-room flat in Marine Parade, high floor, last 3 months"
+  expected_target:
+    town: "MARINE PARADE"
+    flat_type: "3 ROOM"
+    storey_preference: "high"
+    months_back: 3
+  expected_count_range:
+    min: 20
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+
+# ============================================================
+# BROAD / OVER-RESULTS CASES (4)
+# Minimal constraints; initial count >> 200.
+# Agent must tighten (add storey, narrow sqm, or shorten time).
+# Verified initial counts: 
+# Yishun 4-room 12mo ≈754, 
+# Woodlands 4-room 12mo ≈760,
+# Sengkang 4-room 12mo ≈850, 
+# Punggol 4-room 12mo ≈720.
+# ============================================================
+
+- id: broad_001
+  category: broad
+  query: "4-room flat in Yishun"
+  expected_target:
+    town: "YISHUN"
+    flat_type: "4 ROOM"
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+    - llm_judge
+
+- id: broad_002
+  category: broad
+  query: "4-room flat in Woodlands, last 12 months"
+  expected_target:
+    town: "WOODLANDS"
+    flat_type: "4 ROOM"
+    months_back: 12
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+    - llm_judge
+
+- id: broad_003
+  category: broad
+  query: "4-room flat in Sengkang"
+  expected_target:
+    town: "SENGKANG"
+    flat_type: "4 ROOM"
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+    - llm_judge
+
+- id: broad_004
+  category: broad
+  query: "Find me 4-room flats in Punggol, any time, any floor"
+  expected_target:
+    town: "PUNGGOL"
+    flat_type: "4 ROOM"
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - planner_decision
+    - trace_quality
+    - llm_judge
+
+# ============================================================
+# STREET HINT CASES (5)
+# Queries containing "near X" or a specific street name.
+# Must trigger hybrid retrieval mode.
+# Verified approximate counts (street-filtered, 18mo):
+# Fernvale Rd Sengkang ≈127,
+# Tampines St 45 ≈38,
+# Ghim Moh Rd ≈64,
+# Compassvale Link ≈89,
+# Tampines Nth Dr 1 ≈145.
+#
+# NOTE on street_hint values: these use the full user-typed form (e.g. "Fernvale Road",
+# "Tampines Street 45") rather than DB-abbreviated forms ("FERNVALE RD", "TAMPINES ST 45").
+# The Target Agent returns what the user said, not the DB abbreviation, so expectations
+# must match agent output. Retrieval is unaffected: the ILIKE %hint% query does substring
+# matching, so unabbreviated forms resolve correctly against DB street names.
+# ============================================================
+
+- id: street_001
+  category: street_hint
+  query: "4-room flat near Fernvale Road in Sengkang, last 18 months"
+  expected_target:
+    town: "SENGKANG"
+    flat_type: "4 ROOM"
+    street_hint: "Fernvale Road"
+    months_back: 18
+  expected_retrieval_mode: hybrid
+  expected_count_range:
+    min: 10
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_mode
+    - retrieval_quality
+
+- id: street_002
+  category: street_hint
+  query: "5-room flat near Tampines Street 45, last 18 months"
+  expected_target:
+    town: "TAMPINES"
+    flat_type: "5 ROOM"
+    street_hint: "Tampines Street 45"
+    months_back: 18
+  expected_retrieval_mode: hybrid
+  expected_count_range:
+    min: 10
+    max: 100
+  checks:
+    - target_extraction
+    - retrieval_mode
+    - retrieval_quality
+
+- id: street_003
+  category: street_hint
+  query: "3-room flat near Ghim Moh Road in Queenstown, last 18 months"
+  expected_target:
+    town: "QUEENSTOWN"
+    flat_type: "3 ROOM"
+    street_hint: "Ghim Moh Road"
+    months_back: 18
+  expected_retrieval_mode: hybrid
+  expected_count_range:
+    min: 10
+    max: 150
+  checks:
+    - target_extraction
+    - retrieval_mode
+    - retrieval_quality
+
+- id: street_004
+  category: street_hint
+  query: "4-room flat near Compassvale Link in Sengkang, last 18 months"
+  expected_target:
+    town: "SENGKANG"
+    flat_type: "4 ROOM"
+    street_hint: "Compassvale Link"
+    months_back: 18
+  expected_retrieval_mode: hybrid
+  expected_count_range:
+    min: 10
+    max: 150
+  checks:
+    - target_extraction
+    - retrieval_mode
+    - retrieval_quality
+
+- id: street_005
+  category: street_hint
+  query: "5-room flat near Tampines North Drive 1, last 18 months"
+  expected_target:
+    town: "TAMPINES"
+    flat_type: "5 ROOM"
+    street_hint: "Tampines North Drive 1"
+    months_back: 18
+  expected_retrieval_mode: hybrid
+  expected_count_range:
+    min: 30
+    max: 200
+  checks:
+    - target_extraction
+    - retrieval_mode
+    - retrieval_quality
+
+# ============================================================
+# AMBIGUOUS CASES (4)
+# Queries missing town or flat_type (or both).
+# Agent should respond with action "clarify".
+# ============================================================
+
+- id: ambiguous_001
+  category: ambiguous
+  query: "Find me 4-room flats with budget under 500000"
+  expected_target:
+    flat_type: "4 ROOM"
+    price_budget_max: 500000
+  expected_count_range:
+    min: 0
+    max: 500
+  checks:
+    - target_extraction
+    - planner_decision
+
+- id: ambiguous_002
+  category: ambiguous
+  query: "HDB flat near Ang Mo Kio MRT, good lease remaining, last 12 months"
+  expected_target:
+    months_back: 12
+  expected_count_range:
+    min: 0
+    max: 500
+  checks:
+    - planner_decision
+
+- id: ambiguous_003
+  category: ambiguous
+  query: "Show me flats with good lease and sea view, mid floor, recent transactions"
+  expected_target:
+    storey_preference: "mid"
+  expected_count_range:
+    min: 0
+    max: 500
+  checks:
+    - planner_decision
+
+- id: ambiguous_004
+  category: ambiguous
+  query: "Something in Bishan, around 95 sqm, last 12 months"
+  expected_target:
+    town: "BISHAN"
+    floor_area_target: 95.0
+    months_back: 12
+  expected_count_range:
+    min: 0
+    max: 500
+  checks:
+    - target_extraction
+    - planner_decision
+
+# ============================================================
+# EDGE / FAILURE CASES (3)
+# Invalid town names, contradictory constraints, unrealistic combos.
+# At least one has expected_count_range {min: 0, max: 5}.
+# ============================================================
+
+- id: edge_001
+  category: edge
+  query: "Find 4-room flat in Jurong Island, last 12 months"
+  expected_target:
+    flat_type: "4 ROOM"
+    months_back: 12
+  expected_count_range:
+    min: 0
+    max: 5
+  checks:
+    - retrieval_quality
+    - trace_quality
+
+- id: edge_002
+  category: edge
+  query: "Looking for 3-room flat around 200 sqm in Toa Payoh"
+  expected_target:
+    town: "TOA PAYOH"
+    flat_type: "3 ROOM"
+    floor_area_target: 200.0
+  expected_count_range:
+    min: 0
+    max: 5
+  checks:
+    - retrieval_quality
+    - trace_quality
+
+- id: edge_003
+  category: edge
+  query: "5-room flat in Bukit Timah, last 12 months"
+  expected_target:
+    town: "BUKIT TIMAH"
+    flat_type: "5 ROOM"
+    months_back: 12
+  expected_count_range:
+    min: 0
+    max: 40
+  checks:
+    - target_extraction
+    - retrieval_quality
+    - trace_quality
+
+# ============================================================
+# MULTI-TURN CASES (6)
+# 2-turn conversations: turn 2 refines without restating turn 1 context.
+# All turns ≥ 2 have expected_target_delta with updated and preserved keys.
+# All cases preserve town and/or flat_type across turns.
+# ============================================================
+
+- id: multiturn_001
+  category: multi_turn
+  turns:
+    - query: "Find 4-room flats in Sengkang, last 12 months"
+      expected_target:
+        town: "SENGKANG"
+        flat_type: "4 ROOM"
+        months_back: 12
+      expected_count_range:
+        min: 30
+        max: 500
+      checks:
+        - target_extraction
+        - retrieval_quality
+    - query: "Actually I want mid floor, around 90 sqm"
+      expected_target_delta:
+        updated:
+          floor_area_target: 90.0
+          storey_preference: "mid"
+        preserved:
+          - town
+          - flat_type
+          - months_back
+      expected_count_range:
+        min: 30
+        max: 200
+      checks:
+        - target_extraction
+        - retrieval_quality
+
+- id: multiturn_002
+  category: multi_turn
+  turns:
+    - query: "Show me 3-room flats in Toa Payoh, last 12 months"
+      expected_target:
+        town: "TOA PAYOH"
+        flat_type: "3 ROOM"
+        months_back: 12
+      expected_count_range:
+        min: 30
+        max: 500
+      checks:
+        - target_extraction
+        - retrieval_quality
+    - query: "I prefer high floor please"
+      expected_target_delta:
+        updated:
+          storey_preference: "high"
+        preserved:
+          - town
+          - flat_type
+          - months_back
+      expected_count_range:
+        min: 30
+        max: 300
+      checks:
+        - target_extraction
+        - retrieval_quality
+
+- id: multiturn_003
+  category: multi_turn
+  turns:
+    - query: "5-room flat in Tampines, 120 sqm, last 12 months"
+      expected_target:
+        town: "TAMPINES"
+        flat_type: "5 ROOM"
+        floor_area_target: 120.0
+        months_back: 12
+      expected_count_range:
+        min: 30
+        max: 500
+      checks:
+        - target_extraction
+        - retrieval_quality
+    - query: "Narrow it to last 6 months only"
+      expected_target_delta:
+        updated:
+          months_back: 6
+        preserved:
+          - town
+          - flat_type
+          - floor_area_target
+      expected_count_range:
+        min: 30
+        max: 200
+      checks:
+        - target_extraction
+        - retrieval_quality
+
+- id: multiturn_004
+  category: multi_turn
+  turns:
+    - query: "Find 4-room flat in Bishan, last 18 months"
+      expected_target:
+        town: "BISHAN"
+        flat_type: "4 ROOM"
+        months_back: 18
+      expected_count_range:
+        min: 30
+        max: 500
+      checks:
+        - target_extraction
+        - retrieval_quality
+    - query: "I prefer low floor and my budget is under 600000"
+      expected_target_delta:
+        updated:
+          storey_preference: "low"
+          price_budget_max: 600000
+        preserved:
+          - town
+          - flat_type
+          - months_back
+      expected_count_range:
+        min: 30
+        max: 300
+      checks:
+        - target_extraction
+        - retrieval_quality
+
+- id: multiturn_005
+  category: multi_turn
+  turns:
+    - query: "Executive flats in Hougang, last 18 months"
+      expected_target:
+        town: "HOUGANG"
+        flat_type: "EXECUTIVE"
+        months_back: 18
+      expected_count_range:
+        min: 30
+        max: 300
+      checks:
+        - target_extraction
+        - retrieval_quality
+    - query: "Change to mid floor only"
+      expected_target_delta:
+        updated:
+          storey_preference: "mid"
+        preserved:
+          - town
+          - flat_type
+          - months_back
+      expected_count_range:
+        min: 30
+        max: 200
+      checks:
+        - target_extraction
+        - retrieval_quality
+
+- id: multiturn_006
+  category: multi_turn
+  turns:
+    - query: "3-room flat in Queenstown, last 12 months"
+      expected_target:
+        town: "QUEENSTOWN"
+        flat_type: "3 ROOM"
+        months_back: 12
+      expected_count_range:
+        min: 30
+        max: 500
+      checks:
+        - target_extraction
+        - retrieval_quality
+    - query: "I want something around 65 sqm"
+      expected_target_delta:
+        updated:
+          floor_area_target: 65.0
+        preserved:
+          - town
+          - flat_type
+          - months_back
+      expected_count_range:
+        min: 30
+        max: 300
+      checks:
+        - target_extraction
+        - retrieval_quality
+
+# ============================================================
+# PLANNER FALLBACK STRESS CASES (3)
+# Queries crafted to induce LLM planner non-conformance.
+# All use months_back > 36 combined with a rare flat_type.
+# Data only covers 20 months (2024-05 to 2026-01), so months_back > 36
+# returns 0 initial results, forcing repeated relax iterations.
+# Under multiple forced iterations, the LLM may produce invalid
+# PlannerDecision responses, triggering the deterministic fallback path.
+# ============================================================
+
+- id: fallback_001
+  category: fallback_stress
+  query: "Find 1-room flat in Toa Payoh, last 48 months"
+  expected_target:
+    town: "TOA PAYOH"
+    flat_type: "1 ROOM"
+    months_back: 48
+  expected_count_range:
+    min: 0
+    max: 50
+  checks:
+    - target_extraction
+    - planner_decision
+    - trace_quality
+
+- id: fallback_002
+  category: fallback_stress
+  query: "Multi-generation flat in Woodlands, around 90 sqm, last 48 months"
+  expected_target:
+    town: "WOODLANDS"
+    flat_type: "MULTI-GENERATION"
+    floor_area_target: 90.0
+    months_back: 48
+  expected_count_range:
+    min: 0
+    max: 20
+  checks:
+    - target_extraction
+    - planner_decision
+    - trace_quality
+
+- id: fallback_003
+  category: fallback_stress
+  query: "2-room flat in Central Area, last 60 months"
+  expected_target:
+    town: "CENTRAL AREA"
+    flat_type: "2 ROOM"
+    months_back: 60
+  expected_count_range:
+    min: 0
+    max: 30
+  checks:
+    - target_extraction
+    - planner_decision
+    - trace_quality

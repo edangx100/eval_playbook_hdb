@@ -1,0 +1,40 @@
+Experiment baseline_before is running at https://www.braintrust.dev/app/ed/p/hdb-compare-agents-eval/experiments/baseline_before
+Running eval: project='hdb-compare-agents-eval', experiment='baseline_before', cases=14.
+hdb-compare-agents-eval [experiment_name=baseline_before] (data): 0it [00:00, ?it/s]hdb-compare-agents-eval [experiment_name=baseline_before] (data): 14it [00:00, 114241.74it/s]
+hdb-compare-agents-eval [experiment_name=baseline_before] (tasks):   0%|          | 0/14 [00:00<?, ?it/s]hdb-compare-agents-eval [experiment_name=baseline_before] (tasks):   7%|▋         | 1/14 [00:22<04:47, 22.11s/it]hdb-compare-agents-eval [experiment_name=baseline_before] (tasks):  29%|██▊       | 4/14 [00:35<01:18,  7.88s/it]hdb-compare-agents-eval [experiment_name=baseline_before] (tasks): 100%|██████████| 14/14 [00:35<00:00,  2.56s/it]
+
+=========================SUMMARY=========================
+62.50% 'llm_judge'                     score
+100.00% 'planner_adjustment_compliance' score
+87.50% 'planner_decision'              score
+100.00% 'planner_fallback_correct'      score
+87.50% 'planner_final_action'          score
+100.00% 'reranking_quality'             score
+91.90% 'retrieval_quality'             score
+89.27% 'target_extraction'             score
+100.00% 'target_extraction_precision'   score
+82.98% 'target_extraction_recall'      score
+100.00% 'trace_adjustment_completeness' score
+100.00% 'trace_final_step_valid'        score
+100.00% 'trace_quality'                 score
+100.00% 'trace_step_completeness'       score
+
+0.57 llm_calls
+0 tool_calls
+0 errors
+0 llm_errors
+0 tool_errors
+0tok prompt_tokens
+0tok prompt_cached_tokens
+0tok prompt_cache_creation_tokens
+0tok prompt_cache_creation_5m_tokens
+0tok prompt_cache_creation_1h_tokens
+0tok completion_tokens
+0tok completion_reasoning_tokens
+0tok completion_audio_tokens
+0tok total_tokens
+12.55s duration
+
+See results for baseline_before at https://www.braintrust.dev/app/ed/p/hdb-compare-agents-eval/experiments/baseline_before
+Failure report written: /home/ed/myprojs/hdb_agent_eval_v0/evals/reports/baseline_before_failures.json
+Summary written: /home/ed/myprojs/hdb_agent_eval_v0/evals/reports/baseline_before_summary.md

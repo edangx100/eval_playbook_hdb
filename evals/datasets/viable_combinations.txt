@@ -1,0 +1,114 @@
+# Viable town/flat_type combinations: ≥ 30 transactions in the most recent 24 months
+# Source: hdb_resale table, queried 2026-05-26
+# Data range in DB: 2024-05-01 to 2026-01-01 (43,908 rows with embeddings)
+# Format: TOWN | FLAT_TYPE | TXN_COUNT
+
+ANG MO KIO      | 2 ROOM    |    32
+ANG MO KIO      | 3 ROOM    |   944
+ANG MO KIO      | 4 ROOM    |   501
+ANG MO KIO      | 5 ROOM    |   219
+BEDOK           | 2 ROOM    |    36
+BEDOK           | 3 ROOM    |   860
+BEDOK           | 4 ROOM    |   755
+BEDOK           | 5 ROOM    |   346
+BEDOK           | EXECUTIVE |    98
+BISHAN          | 3 ROOM    |   100
+BISHAN          | 4 ROOM    |   309
+BISHAN          | 5 ROOM    |   177
+BISHAN          | EXECUTIVE |    63
+BUKIT BATOK     | 2 ROOM    |   159
+BUKIT BATOK     | 3 ROOM    |   622
+BUKIT BATOK     | 4 ROOM    |  1106
+BUKIT BATOK     | 5 ROOM    |   462
+BUKIT BATOK     | EXECUTIVE |   123
+BUKIT MERAH     | 2 ROOM    |    52
+BUKIT MERAH     | 3 ROOM    |   609
+BUKIT MERAH     | 4 ROOM    |   673
+BUKIT MERAH     | 5 ROOM    |   282
+BUKIT PANJANG   | 2 ROOM    |    36
+BUKIT PANJANG   | 3 ROOM    |   184
+BUKIT PANJANG   | 4 ROOM    |   643
+BUKIT PANJANG   | 5 ROOM    |   391
+BUKIT PANJANG   | EXECUTIVE |   138
+BUKIT TIMAH     | 4 ROOM    |    32
+CENTRAL AREA    | 3 ROOM    |   122
+CENTRAL AREA    | 4 ROOM    |   118
+CENTRAL AREA    | 5 ROOM    |    37
+CHOA CHU KANG   | 3 ROOM    |   122
+CHOA CHU KANG   | 4 ROOM    |   906
+CHOA CHU KANG   | 5 ROOM    |   667
+CHOA CHU KANG   | EXECUTIVE |   185
+CLEMENTI        | 3 ROOM    |   427
+CLEMENTI        | 4 ROOM    |   345
+CLEMENTI        | 5 ROOM    |   128
+GEYLANG         | 2 ROOM    |    36
+GEYLANG         | 3 ROOM    |   525
+GEYLANG         | 4 ROOM    |   423
+GEYLANG         | 5 ROOM    |   118
+GEYLANG         | EXECUTIVE |    32
+HOUGANG         | 2 ROOM    |   101
+HOUGANG         | 3 ROOM    |   503
+HOUGANG         | 4 ROOM    |  1011
+HOUGANG         | 5 ROOM    |   435
+HOUGANG         | EXECUTIVE |   198
+JURONG EAST     | 3 ROOM    |   334
+JURONG EAST     | 4 ROOM    |   259
+JURONG EAST     | 5 ROOM    |   187
+JURONG EAST     | EXECUTIVE |    65
+JURONG WEST     | 2 ROOM    |    70
+JURONG WEST     | 3 ROOM    |   612
+JURONG WEST     | 4 ROOM    |  1100
+JURONG WEST     | 5 ROOM    |   830
+JURONG WEST     | EXECUTIVE |   250
+KALLANG/WHAMPOA | 3 ROOM    |   638
+KALLANG/WHAMPOA | 4 ROOM    |   577
+KALLANG/WHAMPOA | 5 ROOM    |   194
+MARINE PARADE   | 3 ROOM    |   147
+MARINE PARADE   | 4 ROOM    |    54
+MARINE PARADE   | 5 ROOM    |    64
+PASIR RIS       | 3 ROOM    |    33
+PASIR RIS       | 4 ROOM    |   436
+PASIR RIS       | 5 ROOM    |   340
+PASIR RIS       | EXECUTIVE |   269
+PUNGGOL         | 2 ROOM    |   127
+PUNGGOL         | 3 ROOM    |   373
+PUNGGOL         | 4 ROOM    |  1452
+PUNGGOL         | 5 ROOM    |   908
+PUNGGOL         | EXECUTIVE |    47
+QUEENSTOWN      | 2 ROOM    |    30
+QUEENSTOWN      | 3 ROOM    |   496
+QUEENSTOWN      | 4 ROOM    |   440
+QUEENSTOWN      | 5 ROOM    |   113
+SEMBAWANG       | 2 ROOM    |   189
+SEMBAWANG       | 3 ROOM    |   187
+SEMBAWANG       | 4 ROOM    |   877
+SEMBAWANG       | 5 ROOM    |   480
+SEMBAWANG       | EXECUTIVE |   127
+SENGKANG        | 2 ROOM    |   139
+SENGKANG        | 3 ROOM    |   268
+SENGKANG        | 4 ROOM    |  1677
+SENGKANG        | 5 ROOM    |  1117
+SENGKANG        | EXECUTIVE |   172
+SERANGOON       | 3 ROOM    |   163
+SERANGOON       | 4 ROOM    |   312
+SERANGOON       | 5 ROOM    |   115
+SERANGOON       | EXECUTIVE |   100
+TAMPINES        | 3 ROOM    |   640
+TAMPINES        | 4 ROOM    |  1470
+TAMPINES        | 5 ROOM    |   852
+TAMPINES        | EXECUTIVE |   259
+TOA PAYOH       | 2 ROOM    |    37
+TOA PAYOH       | 3 ROOM    |   676
+TOA PAYOH       | 4 ROOM    |   635
+TOA PAYOH       | 5 ROOM    |   250
+TOA PAYOH       | EXECUTIVE |    32
+WOODLANDS       | 2 ROOM    |    75
+WOODLANDS       | 3 ROOM    |   382
+WOODLANDS       | 4 ROOM    |  1415
+WOODLANDS       | 5 ROOM    |   930
+WOODLANDS       | EXECUTIVE |   307
+YISHUN          | 2 ROOM    |   112
+YISHUN          | 3 ROOM    |   783
+YISHUN          | 4 ROOM    |  1418
+YISHUN          | 5 ROOM    |   465
+YISHUN          | EXECUTIVE |   125

@@ -1,0 +1,41 @@
+Experiment baseline_after is running at https://www.braintrust.dev/app/ed/p/hdb-compare-agents-eval/experiments/baseline_after
+Running eval: project='hdb-compare-agents-eval', experiment='baseline_after', cases=14.
+hdb-compare-agents-eval [experiment_name=baseline_after] (data): 0it [00:00, ?it/s]hdb-compare-agents-eval [experiment_name=baseline_after] (data): 14it [00:00, 84855.86it/s]
+hdb-compare-agents-eval [experiment_name=baseline_after] (tasks):   0%|          | 0/14 [00:00<?, ?it/s]hdb-compare-agents-eval [experiment_name=baseline_after] (tasks):   7%|▋         | 1/14 [00:23<04:59, 23.00s/it]hdb-compare-agents-eval [experiment_name=baseline_after] (tasks):  29%|██▊       | 4/14 [00:44<01:41, 10.18s/it]hdb-compare-agents-eval [experiment_name=baseline_after] (tasks): 100%|██████████| 14/14 [00:44<00:00,  3.18s/it]
+
+=========================SUMMARY=========================
+baseline_after compared to baseline_before:
+62.50% (-) 'llm_judge'                     score	(1 improvements, 1 regressions)
+87.50% (-) 'planner_decision'              score	(0 improvements, 0 regressions)
+100.00% (-) 'reranking_quality'             score	(0 improvements, 0 regressions)
+87.86% (-04.05%) 'retrieval_quality'             score	(0 improvements, 1 regressions)
+97.55% (+08.28%) 'target_extraction'             score	(5 improvements, 0 regressions)
+100.00% (-) 'target_extraction_precision'   score	(0 improvements, 0 regressions)
+95.83% (+12.86%) 'target_extraction_recall'      score	(5 improvements, 0 regressions)
+100.00% (-) 'trace_quality'                 score	(0 improvements, 0 regressions)
+100.00% (-) 'planner_adjustment_compliance' score	(0 improvements, 0 regressions)
+100.00% (-) 'planner_fallback_correct'      score	(0 improvements, 0 regressions)
+87.50% (-) 'planner_final_action'          score	(0 improvements, 0 regressions)
+100.00% (-) 'trace_adjustment_completeness' score	(0 improvements, 0 regressions)
+100.00% (-) 'trace_final_step_valid'        score	(0 improvements, 0 regressions)
+100.00% (-) 'trace_step_completeness'       score	(0 improvements, 0 regressions)
+
+0.57 (-) 'llm_calls'                      	(0 improvements, 0 regressions)
+0 (-) 'tool_calls'                     	(0 improvements, 0 regressions)
+0 (-) 'errors'                         	(0 improvements, 0 regressions)
+0 (-) 'llm_errors'                     	(0 improvements, 0 regressions)
+0 (-) 'tool_errors'                    	(0 improvements, 0 regressions)
+0tok (-) 'prompt_tokens'                  	(0 improvements, 0 regressions)
+0tok (-) 'prompt_cached_tokens'           	(0 improvements, 0 regressions)
+0tok (-) 'prompt_cache_creation_tokens'   	(0 improvements, 0 regressions)
+0tok (-) 'prompt_cache_creation_5m_tokens'	(0 improvements, 0 regressions)
+0tok (-) 'prompt_cache_creation_1h_tokens'	(0 improvements, 0 regressions)
+0tok (-) 'completion_tokens'              	(0 improvements, 0 regressions)
+0tok (-) 'completion_reasoning_tokens'    	(0 improvements, 0 regressions)
+0tok (-) 'completion_audio_tokens'        	(0 improvements, 0 regressions)
+0tok (-) 'total_tokens'                   	(0 improvements, 0 regressions)
+12.55s (-00.23%) 'duration'                       	(7 improvements, 7 regressions)
+
+See results for baseline_after at https://www.braintrust.dev/app/ed/p/hdb-compare-agents-eval/experiments/baseline_after
+Failure report written: /home/ed/myprojs/hdb_agent_eval_v0/evals/reports/baseline_after_failures.json
+Summary written: /home/ed/myprojs/hdb_agent_eval_v0/evals/reports/baseline_after_summary.md

@@ -13,9 +13,7 @@ everywhere in this document — is the product on display; the two-agent HDB sea
 > *worked example*: one real end-to-end run, step by step, with the actual scores,
 > screenshots, and a measured **before → after** improvement. In short — the harness
 > caught a real bug (the agent *forgetting earlier details in a conversation*), the
-> diagnosis named the fix, and re-running on the same frozen cases proved it:
-> **conversation cases went 0/6 → 4/6 and the overall pass rate 1/14 → 6/14**, with the
-> planner and judge scores unchanged (a surgical, fully-attributable fix).
+> diagnosis named the fix, and re-running on the same frozen cases proved it.
 
 # Tech Stack used
 
@@ -63,7 +61,7 @@ The diagram below illustrates how the agentic system evaluated in this project o
 
 <img src="images/agentic_system.jpg" alt="Agentic system" style="width:60%;" />
 
-**The flow in plain language:**
+**HDB agentic aearch system flow:**
 
 1. **Target Agent** (LLM) reads your query once and pulls out structured intent — town, flat type, size, floor, time window.
 2. **Loop Orchestrator** (Python, not an LLM) turns that into SQL filters and asks the database how many matches exist.

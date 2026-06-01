@@ -1,16 +1,14 @@
 # HDB Agent Evaluation — Playbook Run Report
 
 **What this is.** A single, end-to-end run of the evaluation playbook against the
-two-agent HDB resale comparable-search system — captured step by step, with the real
-artifacts each step produced. The evaluation harness ([`evals/`](evals/)) is the work on
-display; the agent ([`hdb_search_agents/`](hdb_search_agents/)) is the system under test,
-treated as a black box.
+HDB agentic search system — captured step by step, with the real
+artifacts each step produced.
 
 **Why it matters.** It demonstrates a repeatable, measurable loop: build a versioned
 benchmark → run & score → diagnose failures with evidence → document → apply a fix and
-prove the before/after improvement with per-scorer deltas.
+prove the before/after improvement.
 
-> For the full conceptual explanation of each step, see [`README.md`](README.md).
+> For full conceptual explanation of each step, see [`README.md`](README.md).
 
 ![Closing the Loop: A Data-Driven Playbook for AI Agent Improvement](images/playbook_run.png)
 
@@ -20,10 +18,9 @@ prove the before/after improvement with per-scorer deltas.
 
 | | Detail |
 |---|---|
-| Benchmark size | 38 cases across 8 categories (this run: a frozen **14-case subset** — `easy` + `multi_turn`) |
+| Benchmark size | 38 cases across 8 categories (this run uses a frozen **14-case subset** — `easy` + `multi_turn`) |
 | Scorers | 13 deterministic + 1 LLM-as-judge |
-| Determinism | agents pinned to `temperature=0` (same input → same output) |
-| Experiments | `baseline_before` → `baseline_after` (only a one-function multi-turn fix differs) |
+| Experiments | `baseline_before` → (apply one fix) → `baseline_after` |
 | Headline result | conversation cases **0/6 → 4/6**, overall pass rate **1/14 → 6/14** — and planner/judge scores unchanged (surgical fix) |
 
 ---
@@ -59,11 +56,9 @@ python evals/playbook/seed_dataset.py
 | `fallback_stress` | exercises the deterministic fallback path | 3 | |
 | **Total** | | **38** | **14 selected** |
 
-**Scope of this run — a 14-case subset.** For a fast, cheap, deterministic loop, this
-walkthrough runs a **14-case slice of the same 38-case benchmark**: all 8 `easy`
+**Scope of this run — a 14-case subset.** This walkthrough runs a **14-case slice of the same 38-case benchmark**: all 8 `easy`
 (happy-path) cases plus all 6 `multi_turn` cases. The dataset file is unchanged — the run is
-narrowed at the command line via `--subset`, so the cases are identical to the full
-benchmark, just filtered. Every later step (run, diagnose, document, fix) operates on this
+narrowed at the command line via `--subset` . Every later step (run, diagnose, document, fix) operates on this
 same frozen 14-case set.
 
 ```bash
@@ -79,8 +74,7 @@ multiturn_001,multiturn_002,multiturn_003,multiturn_004,multiturn_005,multiturn_
 **Goal.** Feed every case through the agent and score the output with **13 deterministic
 scorers + 1 LLM-as-judge**; publish a named Braintrust experiment plus local reports.
 
-**Determinism first (the Step-1 promise).** Before trusting any score, the agents are pinned
-to **`temperature=0`** (`target.py` / `planner.py`) for deterministic decoding. This matters:
+**Determinism first (the Step-1 promise).** The agents are pinned to **`temperature=0`** (`target.py` / `planner.py`) for deterministic decoding. This matters:
 an earlier run at the model's *default* temperature was unstable — re-running the identical
 "before" state produced a completely different failure list. Pinning `temperature=0` removes
 that sampling noise, so the before/after delta is attributable to the fix rather than to luck.
@@ -99,7 +93,7 @@ PYTHONPATH=. python evals/playbook/run.py --experiment-name baseline_before --su
 
 | Scorer | Score | Notes |
 |---|---:|---|
-| `target_extraction_precision` | **100%** | every field the agent *did* extract was correct — no corruption (the temp=0 win) |
+| `target_extraction_precision` | **100%** | every field the agent *did* extract was correct — no corruption |
 | `target_extraction` | 89.3% | |
 | `target_extraction_recall` | 83.0% | pulled down by multi-turn cases that drop earlier fields |
 | `retrieval_quality` | 91.9% | |
@@ -113,7 +107,7 @@ PYTHONPATH=. python evals/playbook/run.py --experiment-name baseline_before --su
 | `llm_judge` | 62.5% | |
 | **Overall case pass rate** | **1 / 14 (7.1%)** | `easy` 1/8 · `multi_turn` **0/6** |
 
-**What the scores say (plain language).** The agent's *extraction is clean* (precision
+**What the scores say.** The agent's *extraction is clean* (precision
 100%) and its *machinery is sound* (trace and reranking at 100%). The damage is concentrated:
 **every multi-turn case fails (0/6)** because, in a back-and-forth conversation, the agent
 *forgets what you already told it* — when you refine your request, it drops the flat type and
@@ -127,13 +121,13 @@ rate. Step 3 confirms it with evidence.
 ## Step 3 — Diagnose failures
 
 **Goal.** Turn a wall of low scores into a ranked, evidence-backed work list. This runs
-automatically inside `run.py` — one LLM call diagnoses each failing case and records its
+inside `run.py` — one LLM call diagnoses each failing case and records its
 failed checks, the likely cause, and a recommended fix.
 
 **Artifacts.**
 - Per-case diagnoses: [`evals/reports/baseline_before_failures.json`](evals/reports/baseline_before_failures.json)
 
-**The headline failure, caught in the act.** Every conversation case fails the same way.
+**Failure caught in the act.** Every conversation case fails the same way.
 Take `multiturn_001` — a two-message chat:
 
 ![multiturn_001 — the conversation: user gives "4-room in Sengkang", then refines](images/diagnose_multiturn_failure_1.png)
@@ -147,7 +141,7 @@ Look at the output: `town: SENGKANG`, `floor_area_target: 90`, `storey_preferenc
 `months_back: 12` all carried over correctly — **but `flat_type: null`**. The flat type the
 user gave one message earlier was dropped, so `count: 0` and the agent asks for it again:
 *"I need the flat type before searching. Which flat type should I use in SENGKANG?"* — the
-clearest possible sign that **the agent forgot what it had just been told.**
+clearest sign that **the agent forgot what it had just been told.**
 
 The harness's own one-line diagnosis matches exactly:
 
@@ -156,7 +150,7 @@ The harness's own one-line diagnosis matches exactly:
 > **Recommended fix:** *"…ensure `flat_type` is inherited from previous context when not
 > explicitly mentioned in the current turn."*
 
-**A ranked sample of the diagnoses (plain language).**
+**Sample of the diagnoses**
 
 | Case | What failed | In plain terms | Recommended fix |
 |---|---|---|---|
@@ -173,7 +167,7 @@ hits all 6 chat cases — so it's the one we fix next (Step 4 → "Applying a fi
 
 **Goal.** Synthesise the per-case diagnoses (Step 3) into a short list of failure *modes* —
 grouped by the agent component at fault, each with a root cause and a recommended fix — so the
-work is a prioritised backlog, not just a wall of red cells.
+work is a prioritised backlog.
 
 **Command run.**
 ```bash
@@ -188,7 +182,7 @@ Failure Modes" already embedded in the run summary.
 - Generated taxonomy: [`evals/reports/failure_taxonomy.md`](evals/reports/failure_taxonomy.md)
 - (Also embedded in [`evals/reports/baseline_before_summary.md`](evals/reports/baseline_before_summary.md) — *Top Failure Modes*)
 
-**Failure modes found (by component), in plain language.**
+**Failure modes found (by component)**
 
 | Component | Failure mode | In plain terms | Test case where supporting evidence was found |
 |---|---|---|---|
@@ -202,8 +196,8 @@ Failure Modes" already embedded in the run summary.
 **The decision.** The **Target Agent → multi-turn** mode is both the **largest** (it breaks
 all 6 of the back-and-forth chat tests) and the **cleanest to fix** — the taxonomy's own
 mitigation is *"preserve existing fields when merging with new-turn constraints,"* a
-deterministic code change, no model retraining or prompt gambling. It's also a genuine product
-defect, not an eval artifact. So that's the mode we carry into the fix step below; the rest
+deterministic code change, no model retraining or prompt adjustments. 
+So that's the selected failure mode we carry into the fix step below; the rest
 stay in the backlog for later iterations — which is the point of a taxonomy that's
 re-generated on every run.
 
@@ -232,11 +226,10 @@ else) so the score change is purely down to the fix.
 **The fix applied.** A small, deterministic change in the agent (`orchestrator.py`): when a
 follow-up turn leaves a field blank, the agent now **inherits it from the previous turn**
 instead of dropping it. The user's new words always win; the earlier details only fill the
-gaps. (Plain code, not a prompt plea — so it works every time, not just when the model
-happens to comply.)
+gaps.
 
 The whole fix is this gap-filling merge — about a dozen lines in
-`hdb_search_agents/agent/orchestrator.py` (abridged):
+`hdb_search_agents/agent/orchestrator.py`:
 
 ```python
 # After extracting this turn's Target, fill any field the follow-up left
@@ -291,8 +284,7 @@ prompts are identical — so the entire delta is attributable to the fix.
 > in a **blank exam**: nothing there to mark wrong, so 100%. Before the fix, all 6
 > conversation searches came back empty, so they each scored a fake 100% that padded the
 > average. After the fix they return **real flats**, so they finally get graded for real — and
-> a couple aren't perfect yet. An honest 87.9% beats a hollow 91.9%, and the small dip even
-> points to the next thing worth fixing._
+> a couple aren't perfect yet. An honest 87.9% beats a hollow 91.9%._
 
 **Why 4/6 and not 6/6 — the honest read.** The two still-failing conversation cases fail for
 *different, already-catalogued* reasons, **not** the memory bug:

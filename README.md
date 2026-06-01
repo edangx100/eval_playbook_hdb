@@ -1,8 +1,7 @@
 # Playbook for evaluating HDB Agentic Search System
 
 This document explains *how* the agentic system within this repository is evaluated: the
-end-to-end workflow, what is being measured, how failures are diagnosed, and how
-the lessons are written back into living documentation.
+end-to-end workflow, what is being measured, how failures are diagnosed.
 
 The **eval harness** — i.e. the [`evals/`](evals/) folder, and what *"the harness"* refers to
 everywhere in this document — is the product on display; the two-agent HDB search system
@@ -186,10 +185,10 @@ deterministic · rule-based             LLM-as-judge · opinion-based
 **Scorers 1–6 are quantitative.** Each compares the agent's output against
 something *known and exact*, then returns a number — no opinion involved. For
 example, `target_extraction` checks whether the agent pulled out exactly
-`town = "ANG MO KIO"` (string match) and numbers within ±10%; `retrieval_quality`
+`town = "ANG MO KIO"` (string match); `retrieval_quality`
 just counts what fraction of the returned flats sit in the right town / flat type
 / area band / date range (e.g. 27/30 = 0.90). Run them a thousand times and the
-score is identical every time — that is what **deterministic** means, and it is
+score is identical every time — ie. **deterministic**, and it is
 why these checks pinpoint *which component* broke.
 
 **Scorer 7 is qualitative.** Some questions can't be reduced to a rule. The agent

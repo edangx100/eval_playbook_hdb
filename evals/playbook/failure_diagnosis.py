@@ -354,7 +354,7 @@ def build_failure_record(
 ) -> dict[str, Any]:
     """Assemble one record for the failure report.
 
-    Schema (matches the SPEC.md and TASKS.md "Failure report" section):
+    Schema:
         test_id, query, failed_checks, observed, expected, likely_cause, recommended_fix
 
     ``diagnosis`` is the structured Pydantic instance returned by

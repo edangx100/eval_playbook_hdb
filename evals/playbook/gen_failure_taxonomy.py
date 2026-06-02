@@ -1,7 +1,7 @@
 """
 Generate evals/reports/failure_taxonomy.md from the eval failure reports.
 
-This is a programmatic doc-generation script (SPEC.md §6, TASKS.md Phase 5). It
+This is a programmatic doc-generation script. It
 is NOT hand-authored: it globs every ``evals/reports/*_failures.json``, derives
 which agent components actually have failures, asks the judge LLM to cluster the
 real ``likely_cause`` strings into distinct failure modes, then renders the

@@ -163,7 +163,7 @@ hits all 6 chat cases — so it's the one we fix next (Step 4 → "Applying a fi
 
 ---
 
-## Step 4 — Document how to improve
+## Step 4 — Document & Improve
 
 **Goal.** Synthesise the per-case diagnoses (Step 3) into a short list of failure *modes* —
 grouped by the agent component at fault, each with a root cause and a recommended fix — so the

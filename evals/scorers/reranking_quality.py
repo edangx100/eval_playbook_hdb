@@ -75,7 +75,7 @@ def score(
     test_case: dict[str, Any],
 ) -> RerankingQualityScore:
     """
-    Public entry point — compares top-N MAAD against pool MAAD for the given test case.
+    Public entry point — compares top-N mean absolute area deviation (MAAD) against pool MAAD for the given test case.
 
     Reads floor_area_target from test_case["expected_target"]. If absent, returns a
     vacuous 1.0 immediately — the scorer has no area dimension to measure against.

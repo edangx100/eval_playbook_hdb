@@ -4,7 +4,7 @@ This document explains *how* the agentic system within this repository is evalua
 end-to-end workflow, what is being measured, how failures are diagnosed.
 
 The **eval harness** — i.e. the [`evals/`](evals/) folder, and what *"the harness"* refers to
-everywhere in this document — is the product on display; the two-agent HDB search system
+everywhere in this document — is the product on display; the HDB agentic search system
 ([`hdb_search_agents/`](hdb_search_agents/)) is the system under test, treated as a black box.
 
 > ### 👉 See the playbook in action: **[`PLAYBOOK_RUN.md`](PLAYBOOK_RUN.md)**
@@ -21,16 +21,16 @@ everywhere in this document — is the product on display; the two-agent HDB sea
 |---|---|---|
 | **Eval tracking** | [Braintrust](https://www.braintrust.dev/) | Versioned datasets, named experiments, per-scorer before/after comparison |
 | **LLM-as-judge** | Braintrust autoevals (`LLMClassifier`) | Rates quality of agentic system response |
-| **LLM models** | [OpenRouter](https://openrouter.ai/) (via OpenAI SDK) | Drives failure diagnosis and the llm_judge scorer. This project uses z-ai/glm-5, with the flexibility to switch to any other OpenRouter model. |
+| **LLM models** | [OpenRouter](https://openrouter.ai/) (via OpenAI SDK) | Drives failure diagnosis. This project uses z-ai/glm-5, with the flexibility to switch to any other OpenRouter model. |
 | **Data validation** | Pydantic | Validates structured LLM output |
-| **Benchmark generation** | SQLAlchemy + psycopg2 | Queries live DB to auto-generate data-driven test cases |
+| **Benchmark generation** | SQLAlchemy + psycopg2 | Queries DB to generate data-driven test cases |
 
 
 ## High-level evaluation workflow
 
 ![](images/playbook.jpg)
 
-The workflow is a **scripted, repeatable four-step process** — the same idea as a
+The playbook is a **scripted, repeatable four-step workflow** — the same idea as a
 test suite, but for an agentic system whose output is judged on quality, not just
 pass/fail correctness:
 
@@ -44,11 +44,9 @@ pass/fail correctness:
   run becomes a named Braintrust *experiment*, and two report files are written:
   a `_summary.md` (scores) and a `_failures.json` (every case that failed a check).
 - **Step 3 — Diagnose failures.** `failure_diagnosis.py` takes each failing case
-  and asks an LLM for a one-line root-cause hypothesis plus a recommended fix —
+  and asks an LLM for a root-cause hypothesis plus a recommended fix —
   turning a wall of low scores into a ranked, actionable work list.
-- **Step 4 — Document how to improve.** Doc-generation scripts (e.g.
-  `gen_failure_taxonomy.py`) read the real failure data and synthesise grounded
-  documentation.
+- **Step 4 — Document how to improve.** `gen_failure_taxonomy.py` script read real failure data and generate grounded documentation from it.
 
 A fix is then applied to the agent and **Step 2 is re-run** —
   Braintrust compares the new experiment against the old one and surfaces the
@@ -84,16 +82,16 @@ The diagram below illustrates how the agentic system evaluated in this project o
 ### Scope of Evaluation for the Agentic System
 
 The harness treats the agentic system being evaluated as a **black box** — its runner,
-[`run.py`](evals/playbook/run.py), sends a natural-language query in and captures the response:
+[`run.py`](evals/playbook/run.py), sends a natural-language query (from    test cases) in and captures the response:
 
 | Response Field from agentic system | What it tells the evaluator in this project |
 |---|---|
 | `target` | the structured intent the Target Agent extracted (town, flat_type, floor area, storey, time window) — did the agent *understand the question*? |
 | `filters` | the SQL filters the orchestrator derived from the target |
 | `count` | how many comparable transactions ended up in the final pool — did it land in the 30–200 sweet spot? |
-| `retrieval_mode` | which retrieval strategy was chosen (structured / hybrid / BM25-boosted) — was it the *right* one for this query? |
+| `retrieval_mode` | which retrieval strategy was chosen (structured / hybrid) — was it the *right* one for this query? |
 | `trace` | the step-by-step record of every planner decision — *why* did the agent do what it did? |
-| `results` | the top-30 reranked transactions — are these *defensible comparables* — i.e. a good match for the query? |
+| `results` | the top-30 reranked transactions — are these *defensible comparables* i.e. a good match for the query? |
 | `note` | the user-facing summary of any relaxations/tightenings applied |
 | `messages` | Target Agent message history, used to drive multi-turn cases |
 
@@ -203,7 +201,7 @@ needs judgement, so `llm_judge` shows the query and the results to an LLM and as
 | **Asks** | "Did it obey the spec?" | "Is the result *actually any good*?" |
 | **Like grading** | spelling & word-count check | "is the argument convincing?" |
 | **How** | code compares to expected values | an LLM reviews and rates |
-| **Strength** | exact, cheap, repeatable | catches subtle quality issues rules miss |
+| **Strength** | exact, repeatable | catches subtle quality issues rules miss |
 | **Weakness** | a result can pass every rule yet still be bad | costs an LLM call, slight variability |
 
 The quantitative checks are the **safety net** — fast, free, and they localise
@@ -219,12 +217,12 @@ Each scorer receives `(input, output)` and returns a score in `[0, 1]` (or named
 
 | Evaluation area | Metric | Scorer | What it checks |
 |---|---|---|---|
-| Target extraction | field-level precision/recall | `target_extraction` | F1 of extracted `Target` vs. expected; string fields exact-match, numerics ±10% |
+| Target extraction | field-level precision/recall | `target_extraction` | Precision/recall/F1 of extracted `Target` vs. expected; string fields exact-match |
 | Target carryover | prior-turn fields preserved | `target_extraction` (multi-turn) | updated fields changed and preserved fields unchanged across turns |
 | Retrieval relevance | % results matching hard constraints | `retrieval_quality` | fraction of results satisfying town, flat_type, date range, and floor-area band |
-| Retrieval mode | correct retrieval mode per query | `retrieval_mode` | verifies right mode chosen; street-hint queries must end in `hybrid` |
+| Retrieval mode | correct retrieval mode per query | `retrieval_mode` | verifies right mode chosen; street-hint queries must end in `hybrid` retrieval mode |
 | Planner decisions | correct relax/tighten/clarify/accept | `planner_decision` | final action, adjustment appropriateness, and fallback correctness sub-score |
-| Planner fallback | fallback fires only when expected | `planner_decision` (sub-score) | `fallback_correct`: 1.0 if fallback fires iff the case is `fallback_stress` |
+| Planner fallback | fallback fires only when expected | `planner_decision` (sub-score) | `fallback_correct` score: 1.0 if fallback fires iff the case is from category `fallback_stress` |
 | Reranking quality | top-N closer to target area than raw pool | `reranking_quality` | top-N reranked results are closer to target floor area than the raw candidate pool |
 | Trace quality | trace complete and well-formed | `trace_quality` | every `TraceStep` has action + count; relax/tighten steps carry an adjustment + note |
 | Regression | before/after delta per scorer | Braintrust experiments | re-running after a change surfaces per-scorer delta against the prior versioned experiment |

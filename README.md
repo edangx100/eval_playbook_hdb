@@ -5,7 +5,7 @@ end-to-end workflow, what is being measured, how failures are diagnosed.
 
 The **eval harness** — i.e. the [`evals/`](evals/) folder, and what *"the harness"* refers to
 everywhere in this document — is the product on display; the HDB agentic search system
-([`hdb_search_agents/`](hdb_search_agents/)) is the system under test, treated as a black box.
+([`hdb_search_agents/`](hdb_search_agents/)) is the system under test.
 
 > ### 👉 See the playbook in action: **[`PLAYBOOK_RUN.md`](PLAYBOOK_RUN.md)**
 >
@@ -286,7 +286,7 @@ separate command — it runs automatically inside `run.py`, which writes both th
 **First, set up the agentic system under test.** Follow the instructions in
 [`hdb_search_agents/README.md`](hdb_search_agents/README.md) to stand up the agentic
 system (database, schema, data ingestion, dependencies) before running any evals — the
-harness calls the agent as a live black box, so it must be working first.
+harness calls the agent, so it must be working first.
 
 ```bash
 # 1. Start PostgreSQL (pgvector + pg_textsearch); data must already be ingested.

@@ -226,7 +226,7 @@ Each scorer receives `(input, output)` and returns a score in `[0, 1]` (or named
 | Reranking quality | top-N closer to target area than raw pool | `reranking_quality` | top-N reranked results are closer to target floor area than the raw candidate pool |
 | Trace quality | trace complete and well-formed | `trace_quality` | every `TraceStep` has action + count; relax/tighten steps carry an adjustment + note |
 | Regression | before/after delta per scorer | Braintrust experiments | re-running after a change surfaces per-scorer delta against the prior versioned experiment |
-| LLM-as-judge | comparables defensible for the query | `llm_judge` | `autoevals.LLMClassifier` (GOOD / PARTIAL / POOR → 1.0 / 0.5 / 0.0) with chain-of-thought |
+| LLM-as-judge | comparables defensible for the query | `llm_judge` | LLM Judge inspects the returned comparables, labels them GOOD/PARTIAL/POOR (scored 1.0/0.5/0.0), and includes reasoning. |
 
 Every run becomes a named Braintrust experiment, so re-running after an agent change against the same versioned dataset produces a directly comparable before/after view — at Braintrust platform.
 

@@ -64,10 +64,6 @@ Rules:
 Output ONLY the JSON object. No prose, no markdown fences.\
 """
 
-# ---------------------------------------------------------------------------
-# Doc-generation prompts (used by evals/docs/doc_gen_scripts/ and
-# evals/playbook/gen_failure_taxonomy.py)
-# ---------------------------------------------------------------------------
 
 # Placeholders: {components}, {failures}
 # __SCHEMA__ is replaced at import time in gen_failure_taxonomy.py with the

@@ -45,7 +45,7 @@ pass/fail correctness:
   a `_summary.md` (scores) and a `_failures.json` (every case that failed a check).
 - **Step 3 — Diagnose failures.** `failure_diagnosis.py` takes each failing case
   and asks an LLM for a root-cause hypothesis plus a recommended fix —
-  turning a wall of low scores into a ranked, actionable work list.
+  turning a wall of low scores into an evidence-backed work list.
 - **Step 4 — Document how to improve.** `gen_failure_taxonomy.py` script read real failure data and generate grounded documentation from it.
 
 A fix is then applied to the agent and **Step 2 is re-run** —
@@ -253,7 +253,7 @@ A few engineering details make this reliable rather than flaky:
 - **Robust parsing.** It cleans up the LLM's reply by stripping code fences, recovering JSON mixed into prose, and falling back to the `reasoning` field when some providers put the answer there instead of `content`. If one reply can't be parsed, it inserts a placeholder and keeps going rather than aborting the run.
 - **Cost discipline.** The LLM is only called for failing cases. Passing cases produce no LLM work at all.
 
-All results are written to `evals/reports/<experiment>_failures.json`. Each record contains the test ID, the query, which checks failed, what the agentic system actually returned vs. what was expected, and the LLM's diagnosis. This file is the ranked, evidence-backed fix list that feeds Step 4.
+All results are written to `evals/reports/<experiment>_failures.json`. Each record contains the test ID, the query, which checks failed, what the agentic system actually returned vs. what was expected, and the LLM's diagnosis. This file is the evidence-backed record of failures that feeds Step 4, where the taxonomy step groups and orders them by frequency.
 
 
 ## Step 4 — Document & improve

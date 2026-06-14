@@ -46,7 +46,7 @@ pass/fail correctness:
 - **Step 3 — Diagnose failures.** `failure_diagnosis.py` takes each failing case
   and asks an LLM for a root-cause hypothesis plus a recommended fix —
   turning a wall of low scores into an evidence-backed work list.
-- **Step 4 — Document how to improve.** `gen_failure_taxonomy.py` script read real failure data and generate grounded documentation from it.
+- **Step 4 — Document what to improve.** `gen_failure_taxonomy.py` script read real failure data and generate grounded documentation from it.
 
 A fix is then applied to the agent and **Step 2 is re-run** —
   Braintrust compares the new experiment against the old one and surfaces the
@@ -319,7 +319,7 @@ python evals/playbook/run.py --experiment-name baseline --subset easy,ambiguous
 python evals/playbook/run.py --experiment-name baseline --subset easy_001,easy_002
 ```
 
-### Step 4 — Document how to improve
+### Step 4 — Document what to improve
 
 ```bash
 # Synthesise evals/reports/failure_taxonomy.md from all *_failures.json reports.
